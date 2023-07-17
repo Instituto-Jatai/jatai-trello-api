@@ -80,8 +80,8 @@ export const TrelloService = {
         {
           docLink,
           name: body.action.data.card.name,
-          agreeLink: `https://9dad-189-49-234-93.ngrok-free.app/trello/doc-agree/${body.action.data.card.id}`,
-          rejectLink: `https://9dad-189-49-234-93.ngrok-free.app/trello/doc-reject/${body.action.data.card.id}`,
+          agreeLink: `${config.apiUrl}/trello/doc-agree/${body.action.data.card.id}`,
+          rejectLink: `${config.apiUrl}/trello/doc-reject/${body.action.data.card.id}`,
         }
       );
     }

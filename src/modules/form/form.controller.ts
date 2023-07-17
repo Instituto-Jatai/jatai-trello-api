@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import config from "../../config";
 
 export const FormController = {
   openForm: async (req: Request, res: Response) => {
@@ -11,7 +12,7 @@ export const FormController = {
           </head>
           <body>
             <h1>Formulário</h1>
-            <form action="https://9dad-189-49-234-93.ngrok-free.app/trello/form-complete/${id}" method="POST">
+            <form action="${config.apiUrl}/form-complete/${id}" method="POST">
               <label for="name">Nome:</label>
               <input type="text" id="name" name="name" required>
               <br>
