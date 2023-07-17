@@ -23,7 +23,7 @@ const Routes = {
     app.all(
       "*",
       (_req: Request, res: Response): Response =>
-        res.status(404).send({ error: 404, message: "Check your URL please" })
+        res.status(404).send({ error: 404, message: "Check your URL please" }),
     );
   },
 };

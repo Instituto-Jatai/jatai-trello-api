@@ -12,7 +12,7 @@ export const FormController = {
           </head>
           <body>
             <h1>Formulário</h1>
-            <form action="${config.apiUrl}/form-complete/${id}" method="POST">
+            <form action="${config.apiUrl}/trello/form-complete/${id}" method="POST">
               <label for="name">Nome:</label>
               <input type="text" id="name" name="name" required>
               <br>

@@ -13,7 +13,7 @@ export const EmailService = {
 
       formattedMessage = formattedMessage.replace(
         new RegExp(`#{${param}}`, "g"),
-        result
+        result,
       );
     });
     return formattedMessage;
@@ -23,7 +23,7 @@ export const EmailService = {
     subject: string,
     mailTo: string,
     content: string,
-    keys?: TagReplacers
+    keys?: TagReplacers,
   ) => {
     return axios.post(
       `${config.sendgrid.url}/send`,
@@ -52,7 +52,7 @@ export const EmailService = {
           Authorization: `Bearer ${config.sendgrid.key}`,
           "Content-Type": "application/json",
         },
-      }
+      },
     );
   },
 };

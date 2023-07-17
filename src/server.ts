@@ -14,7 +14,7 @@ const JataiServer = {
     Routes.setupRoutes(app);
 
     const server = app.listen(port, () =>
-      console.log(`Listening on port ${port}...`)
+      console.log(`Listening on port ${port}...`),
     );
 
     server.setTimeout(500000);
@@ -31,7 +31,7 @@ const JataiServer = {
           if (!origin) return callback(null, true);
           return callback(null, true);
         },
-      })
+      }),
     );
   },
 
