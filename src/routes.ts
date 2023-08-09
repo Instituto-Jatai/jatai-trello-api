@@ -7,7 +7,7 @@ const Routes = {
   setupRoutes: (app: Application): void => {
     app.get("/", (req: Request, res: Response) => {
       console.log("GET");
-      res.send(`Coach API v${packageJson?.version} is running.`);
+      res.send(`Jatai API v${packageJson?.version} is running.`);
     });
 
     app.post("/", TrelloController.webhook);
