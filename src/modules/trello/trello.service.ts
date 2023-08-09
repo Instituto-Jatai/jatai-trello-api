@@ -7,6 +7,7 @@ import { WAIT_MEET_TEMPLATE } from "../email/templates/wait-meet";
 import { WAIT_DOC_REVIEW_TEMPLATE } from "../email/templates/wait-doc-review";
 import { MEETING_DONE_TEMPLATE } from "../email/templates/meeting-done";
 import { WAIT_DOC_LEAD_REVIEW_TEMPLATE } from "../email/templates/wait-doc-lead-review";
+import { WAIT_DOC_TO_WAPP } from "../email/templates/wait-doc-to-wapp";
 
 export const TrelloService = {
   getCardById: async (id: string): Promise<Card> => {
@@ -66,14 +67,12 @@ export const TrelloService = {
   },
 
   checkItem: async (checklistItem: ChecklistItem) => {
-    await Promise.all([
-      axios.post<Checklist>(
-        `${config.trello.apiUrl}/checklists/${checklistItem.idChecklist}/checkItems?name=${checklistItem.name}&checked=true&key=${config.trello.key}&token=${config.trello.token}`
-      ),
-      axios.delete<ChecklistItem[]>(
-        `${config.trello.apiUrl}/checklists/${checklistItem.idChecklist}/checkItems/${checklistItem.id}?key=${config.trello.key}&token=${config.trello.token}`
-      ),
-    ]);
+    await axios.delete<ChecklistItem[]>(
+      `${config.trello.apiUrl}/checklists/${checklistItem.idChecklist}/checkItems/${checklistItem.id}?key=${config.trello.key}&token=${config.trello.token}`
+    );
+    await axios.post<Checklist>(
+      `${config.trello.apiUrl}/checklists/${checklistItem.idChecklist}/checkItems?name=${checklistItem.name}&checked=true&key=${config.trello.key}&token=${config.trello.token}`
+    );
   },
 
   sendWaitMeetEmail: async (cardId: string) => {
@@ -147,6 +146,7 @@ export const TrelloService = {
   },
 
   sendWaitReviewEmail: async (cardId: string): Promise<void> => {
+    const card = await TrelloService.getCardById(cardId);
     const fields = await TrelloService.getCustomFieldsByCardId(cardId);
 
     const representativeJataiEmails = fields
@@ -160,6 +160,10 @@ export const TrelloService = {
 
     const representativeEmail =
       fields.find((field) => field.idCustomField === CUSTOM_FIELDS[2].id)?.value
+        .text || "";
+
+    const phone =
+      fields.find((field) => field.idCustomField === CUSTOM_FIELDS[3].id)?.value
         .text || "";
 
     const driveLink =
@@ -185,6 +189,15 @@ export const TrelloService = {
           )
         )
       );
+
+      await EmailService.send(
+        "Jatai - TEMPLATE PARA WHATSAPP",
+        WAIT_DOC_TO_WAPP({
+          cardName: card.name,
+          phone,
+        }),
+        representativeJataiEmails || []
+      );
     } catch (err) {
       console.log(JSON.stringify(err));
     }
@@ -209,7 +222,8 @@ export const TrelloService = {
       const allEmails = [leadEmail];
       const checklistId = await TrelloService.createEmailsChecklist(
         cardId,
-        allEmails
+        allEmails,
+        true
       );
 
       await Promise.all(

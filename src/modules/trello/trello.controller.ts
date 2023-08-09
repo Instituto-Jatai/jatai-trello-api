@@ -28,10 +28,10 @@ export const TrelloController = {
     res: Response
   ) => {
     const cardId = req.params.cardId;
-    const card = await TrelloService.getCardById(cardId);
-
     const checklistId = req.params.checklistId;
     const email = req.params.email;
+
+    const card = await TrelloService.getCardById(cardId);
 
     const checklistItems = await TrelloService.getChecklistItems(checklistId);
 

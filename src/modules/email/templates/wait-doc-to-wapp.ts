@@ -1,3 +1,8 @@
+import { EmailService } from "../email.service";
+
+export const WAIT_DOC_TO_WAPP = (keys: { cardName: string; phone: string }) =>
+  EmailService.messageFormatter(
+    `
 <html>
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -157,4 +162,7 @@
       </p>
     </div>
   </body>
-</html>
+</html>  
+    `,
+    keys
+  );

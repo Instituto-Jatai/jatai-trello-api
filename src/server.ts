@@ -4,6 +4,7 @@ import { Server } from "http";
 import config from "./config";
 import Routes from "./routes";
 import cors from "cors";
+import { startSchedule } from "./schedule";
 
 const { port } = config;
 
@@ -13,9 +14,10 @@ const JataiServer = {
     JataiServer.config(app);
     Routes.setupRoutes(app);
 
-    const server = app.listen(port, () =>
-      console.log(`Listening on port ${port}...`),
-    );
+    const server = app.listen(port, () => {
+      console.log(`Listening on port ${port}...`);
+      startSchedule();
+    });
 
     server.setTimeout(500000);
 
@@ -31,7 +33,7 @@ const JataiServer = {
           if (!origin) return callback(null, true);
           return callback(null, true);
         },
-      }),
+      })
     );
   },
 
