@@ -13,33 +13,27 @@ export const EmailService = {
 
       formattedMessage = formattedMessage.replace(
         new RegExp(`#{${param}}`, "g"),
-        result,
+        result
       );
     });
     return formattedMessage;
   },
 
-  send: (
-    subject: string,
-    mailTo: string,
-    content: string,
-    keys?: TagReplacers,
-  ) => {
+  send: (subject: string, value: string, to: string[], cc?: string[]) => {
     return axios.post(
       `${config.sendgrid.url}/send`,
       {
         personalizations: [
           {
-            to: [{ email: mailTo }],
+            to: to.map((email) => ({ email })),
+            cc: cc?.map((email) => ({ email })),
             subject,
           },
         ],
         content: [
           {
             type: "text/html",
-            value: keys
-              ? EmailService.messageFormatter(content, keys)
-              : content,
+            value,
           },
         ],
         from: {
@@ -52,7 +46,7 @@ export const EmailService = {
           Authorization: `Bearer ${config.sendgrid.key}`,
           "Content-Type": "application/json",
         },
-      },
+      }
     );
   },
 };

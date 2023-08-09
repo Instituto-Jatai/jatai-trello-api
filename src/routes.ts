@@ -14,16 +14,14 @@ const Routes = {
 
     app.get("/form/:id", FormController.openForm);
 
-    app.post("/trello/form-complete/:id", TrelloController.formComplete);
+    app.get("/:cardId/to/:newColumnId", TrelloController.toNewColumn);
 
-    app.get("/trello/doc-agree/:id", TrelloController.agreeDoc);
-
-    app.get("/trello/doc-reject/:id", TrelloController.rejectDoc);
+    app.get("/:cardId/:checklistId/approve/:email", TrelloController.approve);
 
     app.all(
       "*",
       (_req: Request, res: Response): Response =>
-        res.status(404).send({ error: 404, message: "Check your URL please" }),
+        res.status(404).send({ error: 404, message: "Check your URL please" })
     );
   },
 };

@@ -1,17 +1,18 @@
 import axios from "axios";
-import { Body, Card, CustomField } from "../../types";
+import { Card, Checklist, ChecklistItem, CustomField } from "../../types";
 import config from "../../config";
 import { BOARD_COLUMNS, CUSTOM_FIELDS } from "../../constants";
 import { EmailService } from "../email/email.service";
-import { WAIT_FORM_TEMPLATE } from "../email/templates/wait-form";
-import { WAIT_AGREE_TEMPLATE } from "../email/templates/wait-agree";
-import { WAIT_SUBSCRIPTION } from "../email/templates/wait-subscription";
+import { WAIT_MEET_TEMPLATE } from "../email/templates/wait-meet";
+import { WAIT_DOC_REVIEW_TEMPLATE } from "../email/templates/wait-doc-review";
+import { MEETING_DONE_TEMPLATE } from "../email/templates/meeting-done";
+import { WAIT_DOC_LEAD_REVIEW_TEMPLATE } from "../email/templates/wait-doc-lead-review";
 
 export const TrelloService = {
   getCardById: async (id: string): Promise<Card> => {
     return (
       await axios.get<Card>(
-        `${config.trello.apiUrl}/cards/${id}?key=${config.trello.key}&token=${config.trello.token}`,
+        `${config.trello.apiUrl}/cards/${id}?key=${config.trello.key}&token=${config.trello.token}`
       )
     ).data;
   },
@@ -19,7 +20,7 @@ export const TrelloService = {
   getCustomFieldsByCardId: async (id: string): Promise<CustomField[]> => {
     return (
       await axios.get<CustomField[]>(
-        `${config.trello.apiUrl}/cards/${id}/customFieldItems?key=${config.trello.key}&token=${config.trello.token}`,
+        `${config.trello.apiUrl}/cards/${id}/customFieldItems?key=${config.trello.key}&token=${config.trello.token}`
       )
     ).data;
   },
@@ -27,85 +28,205 @@ export const TrelloService = {
   changeColumn: async (id: string, idList: string): Promise<void> => {
     await axios.put<Card>(
       `${config.trello.apiUrl}/cards/${id}?key=${config.trello.key}&token=${config.trello.token}`,
-      { idList },
+      { idList }
     );
   },
 
-  sendFormEmail: async (body: Body): Promise<void> => {
-    const fields = await TrelloService.getCustomFieldsByCardId(
-      body.action.data.card.id,
+  createEmailsChecklist: async (
+    cardId: string,
+    emails: string[],
+    isLead = false
+  ): Promise<string> => {
+    const {
+      data: { id },
+    } = await axios.post<Checklist>(
+      `${config.trello.apiUrl}/checklists?idCard=${cardId}&key=${config.trello.key}&token=${config.trello.token}`,
+      {
+        name: isLead ? "Aprovação da liderança" : "Emails aguardando aprovação",
+      }
     );
 
-    if (fields.length < 3) {
-      TrelloService.changeColumn(body.action.data.card.id, BOARD_COLUMNS[0].id);
-    } else {
-      const email = fields.find(
-        (field) => field.idCustomField === CUSTOM_FIELDS.commonEmail,
-      )?.value.text;
+    await Promise.all(
+      emails.map((email) =>
+        axios.post<Checklist>(
+          `${config.trello.apiUrl}/checklists/${id}/checkItems?name=${email}&key=${config.trello.key}&token=${config.trello.token}`
+        )
+      )
+    );
 
-      if (email) {
+    return id;
+  },
+
+  getChecklistItems: async (checklistId: string) => {
+    return (
+      await axios.get<ChecklistItem[]>(
+        `${config.trello.apiUrl}/checklists/${checklistId}/checkItems?key=${config.trello.key}&token=${config.trello.token}`
+      )
+    ).data;
+  },
+
+  checkItem: async (checklistItem: ChecklistItem) => {
+    await Promise.all([
+      axios.post<Checklist>(
+        `${config.trello.apiUrl}/checklists/${checklistItem.idChecklist}/checkItems?name=${checklistItem.name}&checked=true&key=${config.trello.key}&token=${config.trello.token}`
+      ),
+      axios.delete<ChecklistItem[]>(
+        `${config.trello.apiUrl}/checklists/${checklistItem.idChecklist}/checkItems/${checklistItem.id}?key=${config.trello.key}&token=${config.trello.token}`
+      ),
+    ]);
+  },
+
+  sendWaitMeetEmail: async (cardId: string) => {
+    const fields = await TrelloService.getCustomFieldsByCardId(cardId);
+
+    if (fields.length < CUSTOM_FIELDS.length) {
+      TrelloService.changeColumn(cardId, BOARD_COLUMNS[0].id);
+    } else {
+      const representativeJataiEmails = fields
+        .find((field) => field.idCustomField === CUSTOM_FIELDS[0].id)
+        ?.value.text.split(",");
+      const representativeName =
+        fields.find((field) => field.idCustomField === CUSTOM_FIELDS[1].id)
+          ?.value.text || "";
+      const representativeEmail =
+        fields.find((field) => field.idCustomField === CUSTOM_FIELDS[2].id)
+          ?.value.text || "";
+      const driveLink =
+        fields.find((field) => field.idCustomField === CUSTOM_FIELDS[6].id)
+          ?.value.text || "";
+
+      try {
         await EmailService.send(
-          "Jatai - Preencha o formulário",
-          email,
-          WAIT_FORM_TEMPLATE,
-          {
-            name: body.action.data.card.name,
-            formLink: `${config.apiUrl}/form/${body.action.data.card.id}`,
-          },
+          "Jatai - Agendar reunião",
+          WAIT_MEET_TEMPLATE({
+            driveLink,
+            name: representativeName,
+            goToNextColumnLink: `${config.apiUrl}/${cardId}/to/${BOARD_COLUMNS[2].id}`,
+          }),
+          [representativeEmail],
+          representativeJataiEmails
         );
+      } catch (err) {
+        console.log(JSON.stringify(err));
       }
     }
   },
 
-  sendAgreeEmail: async (body: Body, toLead?: boolean): Promise<void> => {
-    const fields = await TrelloService.getCustomFieldsByCardId(
-      body.action.data.card.id,
-    );
+  sendMeetingIsDoneEmail: async (cardId: string): Promise<void> => {
+    const fields = await TrelloService.getCustomFieldsByCardId(cardId);
 
-    const email = fields.find(
-      (field) =>
-        field.idCustomField ===
-        (toLead ? CUSTOM_FIELDS.leadEmail : CUSTOM_FIELDS.commonEmail),
-    )?.value.text;
+    const representativeJataiEmails = fields
+      .find((field) => field.idCustomField === CUSTOM_FIELDS[0].id)
+      ?.value.text.split(",");
 
-    const docLink =
-      fields.find((field) => field.idCustomField === CUSTOM_FIELDS.docsLink)
-        ?.value.text || "";
+    const teamEmails =
+      fields
+        .find((field) => field.idCustomField === CUSTOM_FIELDS[4].id)
+        ?.value.text.split(",") || [];
 
-    if (email) {
+    const representativeEmail =
+      fields.find((field) => field.idCustomField === CUSTOM_FIELDS[2].id)?.value
+        .text || "";
+
+    const driveLink =
+      fields.find((field) => field.idCustomField === CUSTOM_FIELDS[6].id)?.value
+        .text || "";
+
+    try {
       await EmailService.send(
-        "Jatai - Revisão do documento",
-        email,
-        WAIT_AGREE_TEMPLATE,
-        {
-          docLink,
-          name: body.action.data.card.name,
-          agreeLink: `${config.apiUrl}/trello/doc-agree/${body.action.data.card.id}`,
-          rejectLink: `${config.apiUrl}/trello/doc-reject/${body.action.data.card.id}`,
-        },
+        "Jatai - Reunião concluida com sucesso",
+        MEETING_DONE_TEMPLATE({
+          driveLink,
+        }),
+        [representativeEmail, ...teamEmails],
+        representativeJataiEmails
       );
+    } catch (err) {
+      console.log(JSON.stringify(err));
     }
   },
 
-  sendSubscriptionEmail: async (body: Body): Promise<void> => {
-    const fields = await TrelloService.getCustomFieldsByCardId(
-      body.action.data.card.id,
-    );
+  sendWaitReviewEmail: async (cardId: string): Promise<void> => {
+    const fields = await TrelloService.getCustomFieldsByCardId(cardId);
 
-    const email = fields.find(
-      (field) => field.idCustomField === CUSTOM_FIELDS.leadEmail,
-    )?.value.text;
+    const representativeJataiEmails = fields
+      .find((field) => field.idCustomField === CUSTOM_FIELDS[0].id)
+      ?.value.text.split(",");
 
-    if (email) {
-      await EmailService.send(
-        "Jatai - Assinatura do documento",
-        email,
-        WAIT_SUBSCRIPTION,
-        {
-          name: body.action.data.card.name,
-          subscriptionLink: "https://www.autentique.com.br/",
-        },
+    const teamEmails =
+      fields
+        .find((field) => field.idCustomField === CUSTOM_FIELDS[4].id)
+        ?.value.text.split(",") || [];
+
+    const representativeEmail =
+      fields.find((field) => field.idCustomField === CUSTOM_FIELDS[2].id)?.value
+        .text || "";
+
+    const driveLink =
+      fields.find((field) => field.idCustomField === CUSTOM_FIELDS[6].id)?.value
+        .text || "";
+
+    try {
+      const allEmails = [representativeEmail, ...teamEmails];
+      const checklistId = await TrelloService.createEmailsChecklist(
+        cardId,
+        allEmails
       );
+      await Promise.all(
+        allEmails.map((email) =>
+          EmailService.send(
+            "Jatai - Aguardando revisão dos documentos",
+            WAIT_DOC_REVIEW_TEMPLATE({
+              driveLink,
+              approveLink: `${config.apiUrl}/${cardId}/${checklistId}/approve/${email}`,
+            }),
+            [email],
+            representativeJataiEmails
+          )
+        )
+      );
+    } catch (err) {
+      console.log(JSON.stringify(err));
+    }
+  },
+
+  sendWaitLeadReviewEmail: async (cardId: string): Promise<void> => {
+    const fields = await TrelloService.getCustomFieldsByCardId(cardId);
+
+    const representativeJataiEmails = fields
+      .find((field) => field.idCustomField === CUSTOM_FIELDS[0].id)
+      ?.value.text.split(",");
+
+    const leadEmail =
+      fields.find((field) => field.idCustomField === CUSTOM_FIELDS[5].id)?.value
+        .text || "";
+
+    const driveLink =
+      fields.find((field) => field.idCustomField === CUSTOM_FIELDS[6].id)?.value
+        .text || "";
+
+    try {
+      const allEmails = [leadEmail];
+      const checklistId = await TrelloService.createEmailsChecklist(
+        cardId,
+        allEmails
+      );
+
+      await Promise.all(
+        allEmails.map((email) =>
+          EmailService.send(
+            "Jatai - Aguardando revisão dos documentos",
+            WAIT_DOC_LEAD_REVIEW_TEMPLATE({
+              driveLink,
+              approveLink: `${config.apiUrl}/${cardId}/${checklistId}/approve/${email}`,
+            }),
+            [email],
+            representativeJataiEmails
+          )
+        )
+      );
+    } catch (err) {
+      console.log(JSON.stringify(err));
     }
   },
 };

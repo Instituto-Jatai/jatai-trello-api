@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export type Body = {
   action: Action;
   model: Model;
@@ -270,4 +271,22 @@ export interface CustomField {
 
 export interface Value {
   text: string;
+}
+
+export interface Checklist {
+  id: string;
+  name: string;
+  idBoard: string;
+  idCard: string;
+  pos: number;
+  checkItems: any[];
+  limits: any;
+}
+
+export interface ChecklistItem {
+  id: string;
+  name: string;
+  pos: number;
+  state: string;
+  idChecklist: string;
 }
