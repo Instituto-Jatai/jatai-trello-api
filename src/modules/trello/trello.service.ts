@@ -94,6 +94,10 @@ export const TrelloService = {
         fields.find((field) => field.idCustomField === CUSTOM_FIELDS[6].id)
           ?.value.text || "";
 
+      const calendlyLink =
+        fields.find((field) => field.idCustomField === CUSTOM_FIELDS[7].id)
+          ?.value.text || "";
+
       try {
         await EmailService.send(
           "Jatai - Agendar reunião",
@@ -101,6 +105,7 @@ export const TrelloService = {
             driveLink,
             name: representativeName,
             goToNextColumnLink: `${config.apiUrl}/${cardId}/to/${BOARD_COLUMNS[2].id}`,
+            calendlyLink,
           }),
           [representativeEmail],
           representativeJataiEmails
@@ -170,18 +175,24 @@ export const TrelloService = {
       fields.find((field) => field.idCustomField === CUSTOM_FIELDS[6].id)?.value
         .text || "";
 
+    const calendlyLink =
+      fields.find((field) => field.idCustomField === CUSTOM_FIELDS[7].id)?.value
+        .text || "";
+
     try {
       const allEmails = [representativeEmail, ...teamEmails];
       const checklistId = await TrelloService.createEmailsChecklist(
         cardId,
         allEmails
       );
+
       await Promise.all(
         allEmails.map((email) =>
           EmailService.send(
             "Jatai - Aguardando revisão dos documentos",
             WAIT_DOC_REVIEW_TEMPLATE({
               driveLink,
+              calendlyLink,
               approveLink: `${config.apiUrl}/${cardId}/${checklistId}/approve/${email}`,
             }),
             [email],
@@ -218,6 +229,10 @@ export const TrelloService = {
       fields.find((field) => field.idCustomField === CUSTOM_FIELDS[6].id)?.value
         .text || "";
 
+    const calendlyLink =
+      fields.find((field) => field.idCustomField === CUSTOM_FIELDS[7].id)?.value
+        .text || "";
+
     try {
       const allEmails = [leadEmail];
       const checklistId = await TrelloService.createEmailsChecklist(
@@ -232,6 +247,7 @@ export const TrelloService = {
             "Jatai - Aguardando revisão dos documentos",
             WAIT_DOC_LEAD_REVIEW_TEMPLATE({
               driveLink,
+              calendlyLink,
               approveLink: `${config.apiUrl}/${cardId}/${checklistId}/approve/${email}`,
             }),
             [email],

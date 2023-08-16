@@ -32,7 +32,7 @@ export const WAIT_DOC_TO_WAPP = (keys: { cardName: string; phone: string }) =>
           font-weight: 700;
         "
       >
-        Olá, REPRESENTANTE JATAI!
+        Olá,
       </h1>
       <p
         style="
@@ -55,7 +55,7 @@ export const WAIT_DOC_TO_WAPP = (keys: { cardName: string; phone: string }) =>
         "
       >
         Os documentos da #{cardName} estão prontos.<br />
-        Segue o contato do responsável: <b>#{phone}</b>
+        Segue o contato do responsável: <a href="https://wa.me/55#{phone}" target="_blank"><b>#{phone}</b></a>
       </p>
 
       <p

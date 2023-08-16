@@ -4,6 +4,7 @@ export const WAIT_MEET_TEMPLATE = (keys: {
   name: string;
   goToNextColumnLink: string;
   driveLink: string;
+  calendlyLink: string;
 }) =>
   EmailService.messageFormatter(
     `
@@ -52,7 +53,7 @@ export const WAIT_MEET_TEMPLATE = (keys: {
       </p>
 
       <a
-        href="https://calendly.com/eduardospano/jatai-30min"
+        href="#{calendlyLink}"
         style="
           display: inline-block;
           padding: 14px 24px;

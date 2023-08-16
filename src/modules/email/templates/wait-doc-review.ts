@@ -3,6 +3,7 @@ import { EmailService } from "../email.service";
 export const WAIT_DOC_REVIEW_TEMPLATE = (keys: {
   approveLink: string;
   driveLink: string;
+  calendlyLink: string;
 }) =>
   EmailService.messageFormatter(
     `
@@ -128,7 +129,7 @@ export const WAIT_DOC_REVIEW_TEMPLATE = (keys: {
       </p>
 
       <a
-        href="https://calendly.com/eduardospano/jatai-30min"
+        href="#{calendlyLink}"
         style="
           margin-top: 24px;
           margin-bottom: 40px;

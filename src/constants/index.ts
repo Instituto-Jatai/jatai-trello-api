@@ -75,6 +75,11 @@ export const CUSTOM_FIELDS = [
     idModel: "64c908a74f49d78967e93126",
     name: "Link do drive",
   },
+  {
+    id: "64dd469433bc3dafca5cc4e2",
+    idModel: "64c908a74f49d78967e93126",
+    name: "Calendly",
+  },
 ];
 
 export const HTML_SUCCESS_TEMPLATE = `
