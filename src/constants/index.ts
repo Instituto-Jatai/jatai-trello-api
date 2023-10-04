@@ -142,3 +142,30 @@ export const HTML_SUCCESS_TEMPLATE = `
   </body>
 </html>
 `;
+
+export const BOARD_GOING_COLUMNS = [
+  {
+    id: "6515926c3c497cc8d47dec78",
+    name: "Backlog",
+  },
+  {
+    id: "651592758346e35adcd76a19",
+    name: "Edital de Pregão",
+  },
+  {
+    id: "6515927c22676c41d7230fa1",
+    name: "Licitação realizada",
+  },
+  {
+    id: "65159283d2a04c041727c67d",
+    name: "Contrato assinado",
+  },
+  {
+    id: "65159292cdd2b9d25671d120",
+    name: "Oficina de Fiscalização",
+  },
+  {
+    id: "65159299717c06f821236945",
+    name: "Finalizado",
+  },
+];

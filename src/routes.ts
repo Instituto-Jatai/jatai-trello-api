@@ -10,7 +10,13 @@ const Routes = {
       res.send(`Jatai API v${packageJson?.version} is running.`);
     });
 
+    app.head("/", TrelloController.headOk);
+
+    app.head("/going", TrelloController.headOk);
+
     app.post("/", TrelloController.webhook);
+
+    app.post("/going", TrelloController.webhookGoing);
 
     app.get("/form/:id", FormController.openForm);
 

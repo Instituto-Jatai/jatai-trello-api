@@ -1,7 +1,17 @@
 import axios from "axios";
-import { Card, Checklist, ChecklistItem, CustomField } from "../../types";
+import {
+  Action,
+  Card,
+  Checklist,
+  ChecklistItem,
+  CustomField,
+} from "../../types";
 import config from "../../config";
-import { BOARD_COLUMNS, CUSTOM_FIELDS } from "../../constants";
+import {
+  BOARD_COLUMNS,
+  BOARD_GOING_COLUMNS,
+  CUSTOM_FIELDS,
+} from "../../constants";
 import { EmailService } from "../email/email.service";
 import { WAIT_MEET_TEMPLATE } from "../email/templates/wait-meet";
 import { WAIT_DOC_REVIEW_TEMPLATE } from "../email/templates/wait-doc-review";
@@ -33,26 +43,59 @@ export const TrelloService = {
     );
   },
 
-  createEmailsChecklist: async (
-    cardId: string,
-    emails: string[],
-    isLead = false
-  ): Promise<string> => {
+  createChecklist: async (cardId: string, name: string): Promise<string> => {
     const {
       data: { id },
     } = await axios.post<Checklist>(
       `${config.trello.apiUrl}/checklists?idCard=${cardId}&key=${config.trello.key}&token=${config.trello.token}`,
       {
-        name: isLead ? "Aprovação da liderança" : "Emails aguardando aprovação",
+        name,
       }
+    );
+    return id;
+  },
+
+  createChecklistItem: async (
+    checklistID: string,
+    name: string,
+    pos?: number,
+    due?: string
+  ) => {
+    return axios.post<ChecklistItem>(
+      `${
+        config.trello.apiUrl
+      }/checklists/${checklistID}/checkItems?name=${name}&key=${
+        config.trello.key
+      }&token=${config.trello.token}${pos ? `&pos=${pos}` : ""}${
+        due ? `&due=${due}` : ""
+      }`
+    );
+  },
+
+  updateChecklistItem: async (
+    cardID: string,
+    checklistID: string,
+    checklistItemID: string,
+    checklistItem: Partial<ChecklistItem>
+  ) => {
+    return axios.put<ChecklistItem>(
+      `${config.trello.apiUrl}/cards/${cardID}/checklist/${checklistID}/checkItem/${checklistItemID}?&key=${config.trello.key}&token=${config.trello.token}`,
+      checklistItem
+    );
+  },
+
+  createEmailsChecklist: async (
+    cardId: string,
+    emails: string[],
+    isLead = false
+  ): Promise<string> => {
+    const id = await TrelloService.createChecklist(
+      cardId,
+      isLead ? "Aprovação da liderança" : "Emails aguardando aprovação"
     );
 
     await Promise.all(
-      emails.map((email) =>
-        axios.post<Checklist>(
-          `${config.trello.apiUrl}/checklists/${id}/checkItems?name=${email}&key=${config.trello.key}&token=${config.trello.token}`
-        )
-      )
+      emails.map((email) => TrelloService.createChecklistItem(id, email))
     );
 
     return id;
@@ -66,12 +109,9 @@ export const TrelloService = {
     ).data;
   },
 
-  checkItem: async (checklistItem: ChecklistItem) => {
-    await axios.delete<ChecklistItem[]>(
-      `${config.trello.apiUrl}/checklists/${checklistItem.idChecklist}/checkItems/${checklistItem.id}?key=${config.trello.key}&token=${config.trello.token}`
-    );
-    await axios.post<Checklist>(
-      `${config.trello.apiUrl}/checklists/${checklistItem.idChecklist}/checkItems?name=${checklistItem.name}&checked=true&key=${config.trello.key}&token=${config.trello.token}`
+  deleteChecklistItem: async (checklistId: string, checklistItemID: string) => {
+    await axios.delete(
+      `${config.trello.apiUrl}/checklists/${checklistId}/checkItems/${checklistItemID}?key=${config.trello.key}&token=${config.trello.token}`
     );
   },
 
@@ -255,6 +295,48 @@ export const TrelloService = {
           )
         )
       );
+    } catch (err) {
+      console.log(JSON.stringify(err));
+    }
+  },
+
+  handleBoardGoingSecondColumn: async (action: Action): Promise<void> => {
+    try {
+      if (
+        action.type === "updateCard" &&
+        action.data.card.idList &&
+        action.data.old.idList
+      ) {
+        if (action.data.old.idList !== BOARD_GOING_COLUMNS[0].id) {
+          await TrelloService.changeColumn(
+            action.data.card.id,
+            action.data.old.idList
+          );
+        } else {
+          const checklistID = await TrelloService.createChecklist(
+            action.data.card.id,
+            "Edital de Pregão"
+          );
+
+          await Promise.all(
+            [
+              "Pesquisa de Preço",
+              "Aprovação Financeira",
+              "Produzir o Edital",
+              "Autorização do ordenador de despesa",
+              "Parecer jurídico",
+              "Parecer do controle",
+              "Publicar o edital",
+            ].map((item) =>
+              TrelloService.createChecklistItem(
+                checklistID,
+                item,
+                4102521960000
+              )
+            )
+          );
+        }
+      }
     } catch (err) {
       console.log(JSON.stringify(err));
     }

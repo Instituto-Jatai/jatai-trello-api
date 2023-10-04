@@ -1,6 +1,10 @@
 import { Request, Response } from "express";
 import { Body } from "../../types";
-import { BOARD_COLUMNS, HTML_SUCCESS_TEMPLATE } from "../../constants";
+import {
+  BOARD_COLUMNS,
+  BOARD_GOING_COLUMNS,
+  HTML_SUCCESS_TEMPLATE,
+} from "../../constants";
 import { TrelloService } from "./trello.service";
 
 export const TrelloController = {
@@ -38,7 +42,12 @@ export const TrelloController = {
     const currentItem = checklistItems.find((item) => item.name === email);
 
     if (currentItem && currentItem.state === "incomplete") {
-      await TrelloService.checkItem(currentItem);
+      await TrelloService.updateChecklistItem(
+        cardId,
+        checklistId,
+        currentItem.id,
+        { state: "complete" }
+      );
     }
 
     const openItems = checklistItems.filter(
@@ -76,6 +85,53 @@ export const TrelloController = {
       }
     }
 
+    res.status(200).send();
+  },
+
+  webhookGoing: async (req: Request<null, null, Body>, res: Response) => {
+    const action = req.body.action;
+
+    if (
+      action.type === "updateCard" &&
+      action.data.card.idList &&
+      action.data.old.idList
+    ) {
+      switch (action.data.card.idList) {
+        case BOARD_GOING_COLUMNS[0].id:
+          await TrelloService.changeColumn(
+            action.data.card.id,
+            action.data.old.idList
+          );
+          break;
+
+        case BOARD_GOING_COLUMNS[1].id:
+          await TrelloService.handleBoardGoingSecondColumn(action);
+          break;
+
+        default:
+          break;
+      }
+    }
+
+    if (
+      action.type === "updateCheckItemDue" &&
+      action.data.checklist &&
+      action.data.checkItem
+    ) {
+      await TrelloService.updateChecklistItem(
+        action.data.card.id,
+        action.data.checklist.id,
+        action.data.checkItem.id,
+        {
+          pos: new Date(action.data.checkItem.due).getTime(),
+        }
+      );
+    }
+
+    res.status(200).send();
+  },
+
+  headOk: async (_req: Request, res: Response) => {
     res.status(200).send();
   },
 };

@@ -10,7 +10,7 @@ export type Action = {
   idMemberCreator: string;
   data: Data;
   appCreator: null;
-  type: string;
+  type: "updateCard" | "updateCheckItemStateOnCard" | "updateCheckItemDue";
   date: Date;
   limits: null;
   display: Display;
@@ -19,6 +19,8 @@ export type Action = {
 
 export type Data = {
   card: DataCard;
+  checkItem?: ChecklistItem;
+  checklist?: Checklist;
   old: Old;
   board: Board;
   listBefore: List;
@@ -285,8 +287,10 @@ export interface Checklist {
 
 export interface ChecklistItem {
   id: string;
-  name: string;
+  due: string;
   pos: number;
-  state: string;
+  name: string;
+  state?: "incomplete" | "complete";
+  checked?: boolean;
   idChecklist: string;
 }
