@@ -14,7 +14,7 @@ const Routes = {
 
     app.head("/going", TrelloController.headOk);
 
-    app.post("/", TrelloController.webhook);
+    app.post("/", TrelloController.webhookDocuments);
 
     app.post("/going", TrelloController.webhookGoing);
 

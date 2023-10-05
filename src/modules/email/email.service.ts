@@ -25,7 +25,7 @@ export const EmailService = {
       {
         personalizations: [
           {
-            to: to.map((email) => ({ email })),
+            to: [...new Set(to)].map((email) => ({ email })),
             cc: cc?.map((email) => ({ email })),
             subject,
           },

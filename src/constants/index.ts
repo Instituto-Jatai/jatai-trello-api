@@ -1,6 +1,6 @@
 export const allowedOrigins = ["http://localhost:3000"];
 
-export const BOARD_COLUMNS = [
+export const BOARD_DOCUMENTS_COLUMNS = [
   {
     id: "64c920a724c5852bb74adffe",
     name: "Novas secretarias",
@@ -39,7 +39,7 @@ export const BOARD_COLUMNS = [
   },
 ];
 
-export const CUSTOM_FIELDS = [
+export const BOARD_DOCUMENTS_CUSTOM_FIELDS = [
   {
     id: "64c91c538790f9dde83f1208",
     idModel: "64c908a74f49d78967e93126",
@@ -167,5 +167,85 @@ export const BOARD_GOING_COLUMNS = [
   {
     id: "65159299717c06f821236945",
     name: "Finalizado",
+  },
+];
+
+export const GOING_CHECKLISTS = {
+  secondColumn: {
+    name: "Edital de Pregão",
+    items: [
+      "Pesquisa de Preço",
+      "Aprovação Financeira",
+      "Produzir o Edital",
+      "Autorização do ordenador de despesa",
+      "Parecer jurídico",
+      "Parecer do controle",
+      "Publicar o edital",
+    ],
+  },
+  thirdColumn: {
+    name: "Licitação realizada",
+    items: [
+      "Receber propostas",
+      "Aceitar proposta",
+      "Realizar prova de conceito",
+      "Receber e responder recursos",
+      "Parecer jurídico",
+      "Homologar licitação",
+      "Adjudicar licitação",
+      "Publicar o resultado",
+    ],
+  },
+  fourthColumn: {
+    name: "Contrato assinado",
+    items: [
+      "Solicitar autorização do gestor",
+      "Anuência da empresa",
+      "Pesquisa de preço",
+      "Aprovação financeira",
+      "Parecer jurídico",
+      "Parecer do controle",
+      "Ordenador de despesa assina o contrato",
+      "Contrato assinado pela empresa",
+      "Registrar no sistema de gestão",
+      "Publicar o contrato",
+    ],
+  },
+  fifthColumn: {
+    name: "Oficina de Fiscalização",
+    items: [
+      "Definir integrantes da oficina",
+      "Agendar oficina",
+      "Preparar oficina",
+      "Realizar oficina",
+      "Avaliar oficina",
+    ],
+  },
+};
+
+export const BOARD_GOING_CUSTOM_FIELDS = [
+  {
+    id: "651da963781ed150a84f54c0",
+    name: "Equipe Jataí",
+  },
+  {
+    id: "651da971d3464ed1c8d53a89",
+    name: "Equipe Secretaria",
+  },
+  {
+    id: "651da97ae92f96fbcc2adb09",
+    name: "Liderança da Secretaria",
+  },
+  {
+    id: "651da983ed718701c8d3d279",
+    name: "Parceiros",
+  },
+  {
+    id: "651da98c5ecbdd2e2ee9ac6e",
+    name: "Representante da Secretaria",
+  },
+  {
+    id: "651ed6d1702e59b973b454df",
+    name: "Contato",
   },
 ];
