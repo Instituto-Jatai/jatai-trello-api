@@ -1,6 +1,16 @@
 import axios from "axios";
 import { Card, Checklist, ChecklistItem, CustomField } from "../../types";
 import config from "../../config";
+import {
+  BOARD_GOING_COLUMNS,
+  BOARD_GOING_CUSTOM_FIELDS,
+  GOING_CHECKLISTS,
+} from "../../constants";
+import { EmailService } from "../email/email.service";
+import { CHECKLIST_DELAY_TEMPLATE } from "../email/templates/checklist-delay";
+import { formatDate, getTotalDaysPastDue } from "../../help";
+import { CHECKLIST_DELAY_JATAI_TEMPLATE } from "../email/templates/checklist-delay-jatai";
+import { CHECKLIST_RESUME_TEMPLATE } from "../email/templates/checklist-resume";
 
 export const TrelloService = {
   getCardById: async (id: string): Promise<Card> => {
@@ -144,6 +154,204 @@ export const TrelloService = {
   deleteChecklistItem: async (checklistId: string, checklistItemID: string) => {
     await axios.delete(
       `${config.trello.apiUrl}/checklists/${checklistId}/checkItems/${checklistItemID}?key=${config.trello.key}&token=${config.trello.token}`
+    );
+  },
+
+  sendEmailToDueItems: async (cards: Card[], checklistName: string) => {
+    await Promise.all(
+      cards.map(async (card) => {
+        const { data } = await axios.get<Checklist[]>(
+          `${config.trello.apiUrl}/cards/${card.id}/checklists?name=${checklistName}&key=${config.trello.key}&token=${config.trello.token}`
+        );
+        const today = new Date();
+        const expiredItem = data[0].checkItems
+          .sort((a, b) => a.pos - b.pos)
+          .find(
+            (item) =>
+              item.state === "incomplete" &&
+              item.due &&
+              new Date(item.due) < today
+          );
+
+        if (expiredItem) {
+          const fields = await TrelloService.getCustomFieldsByCardId(card.id);
+          const contactField = BOARD_GOING_CUSTOM_FIELDS.find(
+            (item) => item.name === "Contato"
+          );
+
+          const teamOfSecretariatField = BOARD_GOING_CUSTOM_FIELDS.find(
+            (item) => item.name === "Equipe Secretaria"
+          );
+
+          const representativeOfSecretariatField =
+            BOARD_GOING_CUSTOM_FIELDS.find(
+              (item) => item.name === "Representante da Secretaria"
+            );
+
+          const jataiTeamField = BOARD_GOING_CUSTOM_FIELDS.find(
+            (item) => item.name === "Equipe Jataí"
+          );
+
+          const jataiTeam =
+            fields.find((item) => item.idCustomField === jataiTeamField?.id)
+              ?.value.text || "";
+
+          const contactLink =
+            fields.find((item) => item.idCustomField === contactField?.id)
+              ?.value.text || "";
+
+          const teamOfSecretariat =
+            fields.find(
+              (item) => item.idCustomField === teamOfSecretariatField?.id
+            )?.value.text || "";
+
+          const representativeOfSecretariat =
+            fields.find(
+              (item) =>
+                item.idCustomField === representativeOfSecretariatField?.id
+            )?.value.text || "";
+
+          await EmailService.send(
+            `Jatai - ${checklistName}`,
+            CHECKLIST_DELAY_TEMPLATE({
+              contactLink,
+              itemName: expiredItem.name,
+              date: formatDate(expiredItem.due),
+              daysOfDelay: getTotalDaysPastDue(expiredItem.due).toString(),
+            }),
+            [
+              ...teamOfSecretariat.split(",").map((item) => item.trim()),
+              ...representativeOfSecretariat
+                .split(",")
+                .map((item) => item.trim()),
+            ]
+          );
+
+          await EmailService.send(
+            `Time Jatai - ${checklistName}`,
+            CHECKLIST_DELAY_JATAI_TEMPLATE({
+              cardName: card.name,
+              itemName: expiredItem.name,
+              date: formatDate(expiredItem.due),
+              daysOfDelay: getTotalDaysPastDue(expiredItem.due).toString(),
+            }),
+            jataiTeam.split(",").map((item) => item.trim())
+          );
+        }
+      })
+    );
+  },
+
+  sendEmailWithWeekResume: async (cards: Card[], checklistName: string) => {
+    await Promise.all(
+      cards.map(async (card) => {
+        const { data } = await axios.get<Checklist[]>(
+          `${config.trello.apiUrl}/cards/${card.id}/checklists?name=${checklistName}&key=${config.trello.key}&token=${config.trello.token}`
+        );
+
+        const fields = await TrelloService.getCustomFieldsByCardId(card.id);
+        const contactField = BOARD_GOING_CUSTOM_FIELDS.find(
+          (item) => item.name === "Contato"
+        );
+
+        const teamOfSecretariatField = BOARD_GOING_CUSTOM_FIELDS.find(
+          (item) => item.name === "Equipe Secretaria"
+        );
+
+        const representativeOfSecretariatField = BOARD_GOING_CUSTOM_FIELDS.find(
+          (item) => item.name === "Representante da Secretaria"
+        );
+
+        const jataiTeamField = BOARD_GOING_CUSTOM_FIELDS.find(
+          (item) => item.name === "Equipe Jataí"
+        );
+
+        const jataiTeam =
+          fields.find((item) => item.idCustomField === jataiTeamField?.id)
+            ?.value.text || "";
+
+        const contactLink =
+          fields.find((item) => item.idCustomField === contactField?.id)?.value
+            .text || "";
+
+        const teamOfSecretariat =
+          fields.find(
+            (item) => item.idCustomField === teamOfSecretariatField?.id
+          )?.value.text || "";
+
+        const representativeOfSecretariat =
+          fields.find(
+            (item) =>
+              item.idCustomField === representativeOfSecretariatField?.id
+          )?.value.text || "";
+
+        await EmailService.send(
+          `Jatai - ${checklistName}`,
+          CHECKLIST_RESUME_TEMPLATE(
+            {
+              contactLink,
+            },
+            data[0].checkItems.filter((item) => item.state === "incomplete"),
+            data[0].checkItems.filter((item) => item.state === "complete")
+          ),
+          [
+            ...teamOfSecretariat.split(",").map((item) => item.trim()),
+            ...representativeOfSecretariat
+              .split(",")
+              .map((item) => item.trim()),
+            ...jataiTeam.split(",").map((item) => item.trim()),
+          ]
+        );
+      })
+    );
+  },
+  notifyDueChecklistItems: async () => {
+    const secondColumnItems = await axios.get<Card[]>(
+      `${config.trello.apiUrl}/lists/${BOARD_GOING_COLUMNS[1].id}/cards?key=${config.trello.key}&token=${config.trello.token}`
+    );
+    const thirdColumnItems = await axios.get(
+      `${config.trello.apiUrl}/lists/${BOARD_GOING_COLUMNS[2].id}/cards?key=${config.trello.key}&token=${config.trello.token}`
+    );
+    const fourthColumnItems = await axios.get(
+      `${config.trello.apiUrl}/lists/${BOARD_GOING_COLUMNS[3].id}/cards?key=${config.trello.key}&token=${config.trello.token}`
+    );
+
+    await TrelloService.sendEmailToDueItems(
+      secondColumnItems.data,
+      GOING_CHECKLISTS.secondColumn.name
+    );
+    await TrelloService.sendEmailToDueItems(
+      thirdColumnItems.data,
+      GOING_CHECKLISTS.thirdColumn.name
+    );
+    await TrelloService.sendEmailToDueItems(
+      fourthColumnItems.data,
+      GOING_CHECKLISTS.fourthColumn.name
+    );
+  },
+
+  sendWeekResume: async () => {
+    const secondColumnItems = await axios.get<Card[]>(
+      `${config.trello.apiUrl}/lists/${BOARD_GOING_COLUMNS[1].id}/cards?key=${config.trello.key}&token=${config.trello.token}`
+    );
+    const thirdColumnItems = await axios.get(
+      `${config.trello.apiUrl}/lists/${BOARD_GOING_COLUMNS[2].id}/cards?key=${config.trello.key}&token=${config.trello.token}`
+    );
+    const fourthColumnItems = await axios.get(
+      `${config.trello.apiUrl}/lists/${BOARD_GOING_COLUMNS[3].id}/cards?key=${config.trello.key}&token=${config.trello.token}`
+    );
+
+    await TrelloService.sendEmailWithWeekResume(
+      secondColumnItems.data,
+      GOING_CHECKLISTS.secondColumn.name
+    );
+    await TrelloService.sendEmailWithWeekResume(
+      thirdColumnItems.data,
+      GOING_CHECKLISTS.thirdColumn.name
+    );
+    await TrelloService.sendEmailWithWeekResume(
+      fourthColumnItems.data,
+      GOING_CHECKLISTS.fourthColumn.name
     );
   },
 };

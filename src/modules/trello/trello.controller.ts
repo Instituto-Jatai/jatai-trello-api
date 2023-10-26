@@ -230,4 +230,14 @@ export const TrelloController = {
   headOk: async (_req: Request, res: Response) => {
     res.status(200).send();
   },
+
+  testSchedule: async (_req: Request, res: Response) => {
+    await TrelloService.notifyDueChecklistItems();
+    res.status(200).send();
+  },
+
+  testResume: async (_req: Request, res: Response) => {
+    await TrelloService.sendWeekResume();
+    res.status(200).send();
+  },
 };

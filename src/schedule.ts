@@ -4,6 +4,7 @@ import { Card } from "./types";
 import { BOARD_DOCUMENTS_COLUMNS } from "./constants";
 import config from "./config";
 import { BoardDocumentsService } from "./modules/trello/board.documents.service";
+import { TrelloService } from "./modules/trello/trello.service";
 
 export const startSchedule = () => {
   schedule.scheduleJob(
@@ -22,10 +23,12 @@ export const startSchedule = () => {
           )
         );
       }
+
+      await TrelloService.notifyDueChecklistItems();
     }
   );
 
-  schedule.scheduleJob({ hour: 5, minute: 0, dayOfWeek: [2, 4] }, async () => {
+  schedule.scheduleJob({ hour: 5, minute: 10, dayOfWeek: [2, 4] }, async () => {
     const cardsWaitReviewEmail = (
       await axios.get<Card[]>(
         `${config.trello.apiUrl}/lists/${BOARD_DOCUMENTS_COLUMNS[4].id}/cards?key=${config.trello.key}&token=${config.trello.token}`
@@ -53,5 +56,9 @@ export const startSchedule = () => {
         )
       );
     }
+  });
+
+  schedule.scheduleJob({ hour: 5, minute: 20, dayOfWeek: [1] }, async () => {
+    await TrelloService.sendWeekResume();
   });
 };

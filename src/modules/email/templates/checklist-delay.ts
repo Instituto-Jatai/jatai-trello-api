@@ -1,12 +1,14 @@
 import { EmailService } from "../email.service";
 
-export const BOARD_GOING_FINISH_COLUMN = (keys: {
-  step: string;
+export const CHECKLIST_DELAY_TEMPLATE = (keys: {
+  itemName: string;
+  daysOfDelay: string;
+  date: string;
   contactLink: string;
 }) =>
   EmailService.messageFormatter(
     `
-    <html>
+<html>
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -35,7 +37,7 @@ export const BOARD_GOING_FINISH_COLUMN = (keys: {
           font-weight: 700;
         "
       >
-        Olá,
+        Olá, pessoal!
       </h1>
       <p
         style="
@@ -46,30 +48,9 @@ export const BOARD_GOING_FINISH_COLUMN = (keys: {
           color: #000000;
         "
       >
-        Temos uma ótima notícia!
-      </p>
-      <p
-        style="
-          margin-bottom: 24px;
-          font-size: 14px;
-          font-weight: 600;
-          line-height: 20px;
-          color: #000000;
-        "
-      >
-        A #{step} foi finalizada com sucesso!
-      </p>
-      <p
-        style="
-          font-size: 14px;
-          font-weight: 400;
-          line-height: 20px;
-          margin-bottom: 24px;
-          color: #000000;
-        "
-      >
-        Em breve entraremos em contato para apresentar as próximas etapas do
-        processo.
+        Analisamos o nosso processo e notamos que o item #{itemName} está em
+        atraso há #{daysOfDelay} dias. A data de conclusão prevista foi em
+        #{date}.
       </p>
       <p
         style="
@@ -77,16 +58,29 @@ export const BOARD_GOING_FINISH_COLUMN = (keys: {
           font-weight: 400;
           line-height: 20px;
           color: #000000;
-          margin-bottom: 54px;
+          margin-bottom: 24px;
         "
       >
-        Caso surjam dúvidas não hesitem em entrar em contato conosco pelo botão
-        abaixo:
+        Gostaríamos de entender as dificuldades que possam ter surgido durante a
+        execução deste item e como podemos ajudá-los a finalizar este processo.
       </p>
 
+      <p
+        style="
+          font-size: 14px;
+          font-weight: 400;
+          line-height: 20px;
+          color: #000000;
+          margin-bottom: 24px;
+        "
+      >
+        Entre em contato conosco através do botão abaixo para que possamos te
+        auxiliar e seguir com a implementação.
+      </p>
       <a
         href="#{contactLink}"
         style="
+          margin: 40px 0;
           gap: 8px;
           color: #fff;
           padding: 14px 24px;
@@ -94,14 +88,14 @@ export const BOARD_GOING_FINISH_COLUMN = (keys: {
           border-radius: 12px;
           background: #008040;
           cursor: pointer;
+          text-decoration: none;
           display: inline;
         "
-        >Entrar em contato</a
       >
-
+        Entrar em contato
+      </a>
       <p
         style="
-        margin-top: 40px;
           margin-bottom: 0;
           color: #4d4d4d;
           font-weight: 400;
@@ -125,7 +119,6 @@ export const BOARD_GOING_FINISH_COLUMN = (keys: {
     </div>
   </body>
 </html>
- 
     `,
     keys
   );

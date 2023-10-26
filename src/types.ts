@@ -281,7 +281,7 @@ export interface Checklist {
   idBoard: string;
   idCard: string;
   pos: number;
-  checkItems: any[];
+  checkItems: ChecklistItem[];
   limits: any;
 }
 

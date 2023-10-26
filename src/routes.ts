@@ -24,6 +24,10 @@ const Routes = {
 
     app.get("/:cardId/:checklistId/approve/:email", TrelloController.approve);
 
+    app.get("/test-schedule", TrelloController.testSchedule);
+
+    app.get("/test-resume", TrelloController.testResume);
+
     app.all(
       "*",
       (_req: Request, res: Response): Response =>
