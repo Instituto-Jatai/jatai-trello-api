@@ -164,5 +164,5 @@ export const WAIT_DOC_TO_WAPP = (keys: { cardName: string; phone: string }) =>
   </body>
 </html>  
     `,
-    keys
+    keys,
   );

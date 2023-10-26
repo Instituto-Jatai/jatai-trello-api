@@ -117,5 +117,5 @@ export const CHECKLIST_DELAY_TOMORROW_TEMPLATE = (keys: {
   </body>
 </html>
     `,
-    keys
+    keys,
   );

@@ -127,5 +127,5 @@ export const BOARD_GOING_FINISH_COLUMN = (keys: {
 </html>
  
     `,
-    keys
+    keys,
   );

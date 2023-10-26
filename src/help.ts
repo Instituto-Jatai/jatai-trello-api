@@ -8,7 +8,7 @@ export const formatDate = (date: string) => {
 
   return `${String(day).padStart(2, "0")}/${String(month).padStart(
     2,
-    "0"
+    "0",
   )}/${year}`;
 };
 

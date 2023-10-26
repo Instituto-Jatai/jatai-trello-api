@@ -33,7 +33,7 @@ const JataiServer = {
           if (!origin) return callback(null, true);
           return callback(null, true);
         },
-      })
+      }),
     );
   },
 

@@ -20,25 +20,30 @@ export const BoardDocumentsService = {
     } else {
       const representativeJataiEmails = fields
         .find(
-          (field) => field.idCustomField === BOARD_DOCUMENTS_CUSTOM_FIELDS[0].id
+          (field) =>
+            field.idCustomField === BOARD_DOCUMENTS_CUSTOM_FIELDS[0].id,
         )
         ?.value.text.split(",");
       const representativeName =
         fields.find(
-          (field) => field.idCustomField === BOARD_DOCUMENTS_CUSTOM_FIELDS[1].id
+          (field) =>
+            field.idCustomField === BOARD_DOCUMENTS_CUSTOM_FIELDS[1].id,
         )?.value.text || "";
       const representativeEmail =
         fields.find(
-          (field) => field.idCustomField === BOARD_DOCUMENTS_CUSTOM_FIELDS[2].id
+          (field) =>
+            field.idCustomField === BOARD_DOCUMENTS_CUSTOM_FIELDS[2].id,
         )?.value.text || "";
       const driveLink =
         fields.find(
-          (field) => field.idCustomField === BOARD_DOCUMENTS_CUSTOM_FIELDS[6].id
+          (field) =>
+            field.idCustomField === BOARD_DOCUMENTS_CUSTOM_FIELDS[6].id,
         )?.value.text || "";
 
       const calendlyLink =
         fields.find(
-          (field) => field.idCustomField === BOARD_DOCUMENTS_CUSTOM_FIELDS[7].id
+          (field) =>
+            field.idCustomField === BOARD_DOCUMENTS_CUSTOM_FIELDS[7].id,
         )?.value.text || "";
 
       try {
@@ -51,7 +56,7 @@ export const BoardDocumentsService = {
             calendlyLink,
           }),
           [representativeEmail],
-          representativeJataiEmails
+          representativeJataiEmails,
         );
       } catch (err) {
         console.log(JSON.stringify(err));
@@ -64,25 +69,26 @@ export const BoardDocumentsService = {
 
     const representativeJataiEmails = fields
       .find(
-        (field) => field.idCustomField === BOARD_DOCUMENTS_CUSTOM_FIELDS[0].id
+        (field) => field.idCustomField === BOARD_DOCUMENTS_CUSTOM_FIELDS[0].id,
       )
       ?.value.text.split(",");
 
     const teamEmails =
       fields
         .find(
-          (field) => field.idCustomField === BOARD_DOCUMENTS_CUSTOM_FIELDS[4].id
+          (field) =>
+            field.idCustomField === BOARD_DOCUMENTS_CUSTOM_FIELDS[4].id,
         )
         ?.value.text.split(",") || [];
 
     const representativeEmail =
       fields.find(
-        (field) => field.idCustomField === BOARD_DOCUMENTS_CUSTOM_FIELDS[2].id
+        (field) => field.idCustomField === BOARD_DOCUMENTS_CUSTOM_FIELDS[2].id,
       )?.value.text || "";
 
     const driveLink =
       fields.find(
-        (field) => field.idCustomField === BOARD_DOCUMENTS_CUSTOM_FIELDS[6].id
+        (field) => field.idCustomField === BOARD_DOCUMENTS_CUSTOM_FIELDS[6].id,
       )?.value.text || "";
 
     try {
@@ -92,7 +98,7 @@ export const BoardDocumentsService = {
           driveLink,
         }),
         [representativeEmail, ...teamEmails],
-        representativeJataiEmails
+        representativeJataiEmails,
       );
     } catch (err) {
       console.log(JSON.stringify(err));
@@ -105,42 +111,43 @@ export const BoardDocumentsService = {
 
     const representativeJataiEmails = fields
       .find(
-        (field) => field.idCustomField === BOARD_DOCUMENTS_CUSTOM_FIELDS[0].id
+        (field) => field.idCustomField === BOARD_DOCUMENTS_CUSTOM_FIELDS[0].id,
       )
       ?.value.text.split(",");
 
     const teamEmails =
       fields
         .find(
-          (field) => field.idCustomField === BOARD_DOCUMENTS_CUSTOM_FIELDS[4].id
+          (field) =>
+            field.idCustomField === BOARD_DOCUMENTS_CUSTOM_FIELDS[4].id,
         )
         ?.value.text.split(",") || [];
 
     const representativeEmail =
       fields.find(
-        (field) => field.idCustomField === BOARD_DOCUMENTS_CUSTOM_FIELDS[2].id
+        (field) => field.idCustomField === BOARD_DOCUMENTS_CUSTOM_FIELDS[2].id,
       )?.value.text || "";
 
     const phone =
       fields.find(
-        (field) => field.idCustomField === BOARD_DOCUMENTS_CUSTOM_FIELDS[3].id
+        (field) => field.idCustomField === BOARD_DOCUMENTS_CUSTOM_FIELDS[3].id,
       )?.value.text || "";
 
     const driveLink =
       fields.find(
-        (field) => field.idCustomField === BOARD_DOCUMENTS_CUSTOM_FIELDS[6].id
+        (field) => field.idCustomField === BOARD_DOCUMENTS_CUSTOM_FIELDS[6].id,
       )?.value.text || "";
 
     const calendlyLink =
       fields.find(
-        (field) => field.idCustomField === BOARD_DOCUMENTS_CUSTOM_FIELDS[7].id
+        (field) => field.idCustomField === BOARD_DOCUMENTS_CUSTOM_FIELDS[7].id,
       )?.value.text || "";
 
     try {
       const allEmails = [representativeEmail, ...teamEmails];
       const checklistId = await TrelloService.createEmailsChecklist(
         cardId,
-        allEmails
+        allEmails,
       );
 
       await Promise.all(
@@ -153,9 +160,9 @@ export const BoardDocumentsService = {
               approveLink: `${config.apiUrl}/${cardId}/${checklistId}/approve/${email}`,
             }),
             [email],
-            representativeJataiEmails
-          )
-        )
+            representativeJataiEmails,
+          ),
+        ),
       );
 
       await EmailService.send(
@@ -164,7 +171,7 @@ export const BoardDocumentsService = {
           cardName: card.name,
           phone,
         }),
-        representativeJataiEmails || []
+        representativeJataiEmails || [],
       );
     } catch (err) {
       console.log(JSON.stringify(err));
@@ -176,23 +183,23 @@ export const BoardDocumentsService = {
 
     const representativeJataiEmails = fields
       .find(
-        (field) => field.idCustomField === BOARD_DOCUMENTS_CUSTOM_FIELDS[0].id
+        (field) => field.idCustomField === BOARD_DOCUMENTS_CUSTOM_FIELDS[0].id,
       )
       ?.value.text.split(",");
 
     const leadEmail =
       fields.find(
-        (field) => field.idCustomField === BOARD_DOCUMENTS_CUSTOM_FIELDS[5].id
+        (field) => field.idCustomField === BOARD_DOCUMENTS_CUSTOM_FIELDS[5].id,
       )?.value.text || "";
 
     const driveLink =
       fields.find(
-        (field) => field.idCustomField === BOARD_DOCUMENTS_CUSTOM_FIELDS[6].id
+        (field) => field.idCustomField === BOARD_DOCUMENTS_CUSTOM_FIELDS[6].id,
       )?.value.text || "";
 
     const calendlyLink =
       fields.find(
-        (field) => field.idCustomField === BOARD_DOCUMENTS_CUSTOM_FIELDS[7].id
+        (field) => field.idCustomField === BOARD_DOCUMENTS_CUSTOM_FIELDS[7].id,
       )?.value.text || "";
 
     try {
@@ -200,7 +207,7 @@ export const BoardDocumentsService = {
       const checklistId = await TrelloService.createEmailsChecklist(
         cardId,
         allEmails,
-        true
+        true,
       );
 
       await Promise.all(
@@ -213,9 +220,9 @@ export const BoardDocumentsService = {
               approveLink: `${config.apiUrl}/${cardId}/${checklistId}/approve/${email}`,
             }),
             [email],
-            representativeJataiEmails
-          )
-        )
+            representativeJataiEmails,
+          ),
+        ),
       );
     } catch (err) {
       console.log(JSON.stringify(err));

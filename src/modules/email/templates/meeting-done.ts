@@ -119,5 +119,5 @@ export const MEETING_DONE_TEMPLATE = (keys: { driveLink: string }) =>
   </body>
 </html>  
     `,
-    keys
+    keys,
   );

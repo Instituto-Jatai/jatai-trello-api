@@ -120,5 +120,5 @@ export const CHECKLIST_DELAY_TEMPLATE = (keys: {
   </body>
 </html>
     `,
-    keys
+    keys,
   );

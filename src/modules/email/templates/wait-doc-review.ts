@@ -172,5 +172,5 @@ export const WAIT_DOC_REVIEW_TEMPLATE = (keys: {
   </body>
 </html>
     `,
-    keys
+    keys,
   );

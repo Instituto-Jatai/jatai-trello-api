@@ -13,7 +13,7 @@ import { BoardDocumentsService } from "./board.documents.service";
 export const TrelloController = {
   toNewColumn: async (
     req: Request<{ cardId: string; newColumnId: string }>,
-    res: Response
+    res: Response,
   ) => {
     const cardId = req.params.cardId;
     const newColumnId = req.params.newColumnId;
@@ -32,7 +32,7 @@ export const TrelloController = {
 
   approve: async (
     req: Request<{ cardId: string; checklistId: string; email: string }>,
-    res: Response
+    res: Response,
   ) => {
     const cardId = req.params.cardId;
     const checklistId = req.params.checklistId;
@@ -49,12 +49,12 @@ export const TrelloController = {
         cardId,
         checklistId,
         currentItem.id,
-        { state: "complete" }
+        { state: "complete" },
       );
     }
 
     const openItems = checklistItems.filter(
-      (item) => item.state === "incomplete" && item.id !== currentItem?.id
+      (item) => item.state === "incomplete" && item.id !== currentItem?.id,
     );
 
     if (openItems.length === 0) {
@@ -75,22 +75,22 @@ export const TrelloController = {
       switch (body.action.data.card?.idList) {
         case BOARD_DOCUMENTS_COLUMNS[1].id:
           await BoardDocumentsService.sendWaitMeetEmail(
-            body.action.data.card.id
+            body.action.data.card.id,
           );
           break;
         case BOARD_DOCUMENTS_COLUMNS[3].id:
           await BoardDocumentsService.sendMeetingIsDoneEmail(
-            body.action.data.card.id
+            body.action.data.card.id,
           );
           break;
         case BOARD_DOCUMENTS_COLUMNS[4].id:
           await BoardDocumentsService.sendWaitReviewEmail(
-            body.action.data.card.id
+            body.action.data.card.id,
           );
           break;
         case BOARD_DOCUMENTS_COLUMNS[6].id:
           await BoardDocumentsService.sendWaitLeadReviewEmail(
-            body.action.data.card.id
+            body.action.data.card.id,
           );
           break;
       }
@@ -108,25 +108,25 @@ export const TrelloController = {
       action.data.old.idList
     ) {
       const fields = await TrelloService.getCustomFieldsByCardId(
-        action.data.card.id
+        action.data.card.id,
       );
       const jataiTeam = fields.find(
-        (field) => field.idCustomField === BOARD_GOING_CUSTOM_FIELDS[0].id
+        (field) => field.idCustomField === BOARD_GOING_CUSTOM_FIELDS[0].id,
       )?.value;
       const clientTeam = fields.find(
-        (field) => field.idCustomField === BOARD_GOING_CUSTOM_FIELDS[1].id
+        (field) => field.idCustomField === BOARD_GOING_CUSTOM_FIELDS[1].id,
       )?.value;
       const clientLead = fields.find(
-        (field) => field.idCustomField === BOARD_GOING_CUSTOM_FIELDS[2].id
+        (field) => field.idCustomField === BOARD_GOING_CUSTOM_FIELDS[2].id,
       )?.value;
       const partners = fields.find(
-        (field) => field.idCustomField === BOARD_GOING_CUSTOM_FIELDS[3].id
+        (field) => field.idCustomField === BOARD_GOING_CUSTOM_FIELDS[3].id,
       )?.value;
       const clientDelegate = fields.find(
-        (field) => field.idCustomField === BOARD_GOING_CUSTOM_FIELDS[4].id
+        (field) => field.idCustomField === BOARD_GOING_CUSTOM_FIELDS[4].id,
       )?.value;
       const contactLink = fields.find(
-        (field) => field.idCustomField === BOARD_GOING_CUSTOM_FIELDS[5].id
+        (field) => field.idCustomField === BOARD_GOING_CUSTOM_FIELDS[5].id,
       )?.value;
 
       if (
@@ -154,7 +154,7 @@ export const TrelloController = {
             console.log("handleBoardGoingSecondColumn");
             await BoardGoingService.handleBoardGoingSecondColumn(
               action.data.card.id,
-              action.data.old.idList
+              action.data.old.idList,
             );
             break;
 
@@ -164,7 +164,7 @@ export const TrelloController = {
               action.data.card.id,
               action.data.old.idList,
               emails,
-              contactLink.text
+              contactLink.text,
             );
             break;
 
@@ -174,7 +174,7 @@ export const TrelloController = {
               action.data.card.id,
               action.data.old.idList,
               emails,
-              contactLink.text
+              contactLink.text,
             );
             break;
 
@@ -184,7 +184,7 @@ export const TrelloController = {
               action.data.card.id,
               action.data.old.idList,
               emails,
-              contactLink.text
+              contactLink.text,
             );
             break;
 
@@ -194,7 +194,7 @@ export const TrelloController = {
               action.data.card.id,
               action.data.old.idList,
               emails,
-              contactLink.text
+              contactLink.text,
             );
             break;
 
@@ -204,7 +204,7 @@ export const TrelloController = {
       } else {
         await TrelloService.changeColumn(
           action.data.card.id,
-          BOARD_GOING_COLUMNS[0].id
+          BOARD_GOING_COLUMNS[0].id,
         );
       }
     }
@@ -220,7 +220,7 @@ export const TrelloController = {
         action.data.checkItem.id,
         {
           pos: new Date(action.data.checkItem.due).getTime(),
-        }
+        },
       );
     }
 

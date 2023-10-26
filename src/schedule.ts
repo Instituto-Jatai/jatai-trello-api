@@ -12,48 +12,48 @@ export const startSchedule = () => {
     async () => {
       const cardsWaitingMeet = (
         await axios.get<Card[]>(
-          `${config.trello.apiUrl}/lists/${BOARD_DOCUMENTS_COLUMNS[1].id}/cards?key=${config.trello.key}&token=${config.trello.token}`
+          `${config.trello.apiUrl}/lists/${BOARD_DOCUMENTS_COLUMNS[1].id}/cards?key=${config.trello.key}&token=${config.trello.token}`,
         )
       ).data;
 
       if (cardsWaitingMeet && cardsWaitingMeet.length > 0) {
         await Promise.all(
           cardsWaitingMeet.map((card) =>
-            BoardDocumentsService.sendWaitMeetEmail(card.id)
-          )
+            BoardDocumentsService.sendWaitMeetEmail(card.id),
+          ),
         );
       }
 
       await TrelloService.notifyDueChecklistItems();
-    }
+    },
   );
 
   schedule.scheduleJob({ hour: 5, minute: 10, dayOfWeek: [2, 4] }, async () => {
     const cardsWaitReviewEmail = (
       await axios.get<Card[]>(
-        `${config.trello.apiUrl}/lists/${BOARD_DOCUMENTS_COLUMNS[4].id}/cards?key=${config.trello.key}&token=${config.trello.token}`
+        `${config.trello.apiUrl}/lists/${BOARD_DOCUMENTS_COLUMNS[4].id}/cards?key=${config.trello.key}&token=${config.trello.token}`,
       )
     ).data;
 
     if (cardsWaitReviewEmail && cardsWaitReviewEmail.length > 0) {
       await Promise.all(
         cardsWaitReviewEmail.map((card) =>
-          BoardDocumentsService.sendWaitReviewEmail(card.id)
-        )
+          BoardDocumentsService.sendWaitReviewEmail(card.id),
+        ),
       );
     }
 
     const cardsWaitLeadReviewEmail = (
       await axios.get<Card[]>(
-        `${config.trello.apiUrl}/lists/${BOARD_DOCUMENTS_COLUMNS[6].id}/cards?key=${config.trello.key}&token=${config.trello.token}`
+        `${config.trello.apiUrl}/lists/${BOARD_DOCUMENTS_COLUMNS[6].id}/cards?key=${config.trello.key}&token=${config.trello.token}`,
       )
     ).data;
 
     if (cardsWaitLeadReviewEmail && cardsWaitLeadReviewEmail.length > 0) {
       await Promise.all(
         cardsWaitLeadReviewEmail.map((card) =>
-          BoardDocumentsService.sendWaitLeadReviewEmail(card.id)
-        )
+          BoardDocumentsService.sendWaitLeadReviewEmail(card.id),
+        ),
       );
     }
   });

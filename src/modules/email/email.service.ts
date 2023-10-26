@@ -13,7 +13,7 @@ export const EmailService = {
 
       formattedMessage = formattedMessage.replace(
         new RegExp(`#{${param}}`, "g"),
-        result
+        result,
       );
     });
     return formattedMessage;
@@ -46,7 +46,7 @@ export const EmailService = {
           Authorization: `Bearer ${config.sendgrid.key}`,
           "Content-Type": "application/json",
         },
-      }
+      },
     );
   },
 };

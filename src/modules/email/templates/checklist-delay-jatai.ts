@@ -121,5 +121,5 @@ export const CHECKLIST_DELAY_JATAI_TEMPLATE = (keys: {
   </html>
   
     `,
-    keys
+    keys,
   );

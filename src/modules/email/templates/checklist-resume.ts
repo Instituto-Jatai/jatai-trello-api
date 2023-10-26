@@ -7,7 +7,7 @@ export const CHECKLIST_RESUME_TEMPLATE = (
     contactLink: string;
   },
   pendingItems?: ChecklistItem[],
-  completedItems?: ChecklistItem[]
+  completedItems?: ChecklistItem[],
 ) =>
   EmailService.messageFormatter(
     `
@@ -88,7 +88,7 @@ export const CHECKLIST_RESUME_TEMPLATE = (
               </td>
             </tr>
           </table>
-          `
+          `,
             )
             .join("")}
   
@@ -110,7 +110,7 @@ export const CHECKLIST_RESUME_TEMPLATE = (
                 </td>
               </tr>
             </table>
-          `
+          `,
             )
             .join("")}
           
@@ -160,5 +160,5 @@ export const CHECKLIST_RESUME_TEMPLATE = (
   </html>
   
     `,
-    keys
+    keys,
   );

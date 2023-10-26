@@ -17,7 +17,7 @@ export const TrelloService = {
   getCardById: async (id: string): Promise<Card> => {
     return (
       await axios.get<Card>(
-        `${config.trello.apiUrl}/cards/${id}?key=${config.trello.key}&token=${config.trello.token}`
+        `${config.trello.apiUrl}/cards/${id}?key=${config.trello.key}&token=${config.trello.token}`,
       )
     ).data;
   },
@@ -25,7 +25,7 @@ export const TrelloService = {
   getCustomFieldsByCardId: async (id: string): Promise<CustomField[]> => {
     return (
       await axios.get<CustomField[]>(
-        `${config.trello.apiUrl}/cards/${id}/customFieldItems?key=${config.trello.key}&token=${config.trello.token}`
+        `${config.trello.apiUrl}/cards/${id}/customFieldItems?key=${config.trello.key}&token=${config.trello.token}`,
       )
     ).data;
   },
@@ -33,7 +33,7 @@ export const TrelloService = {
   changeColumn: async (id: string, idList: string): Promise<void> => {
     await axios.put<Card>(
       `${config.trello.apiUrl}/cards/${id}?key=${config.trello.key}&token=${config.trello.token}`,
-      { idList }
+      { idList },
     );
   },
 
@@ -44,7 +44,7 @@ export const TrelloService = {
       `${config.trello.apiUrl}/checklists?idCard=${cardId}&key=${config.trello.key}&token=${config.trello.token}`,
       {
         name,
-      }
+      },
     );
     return id;
   },
@@ -53,7 +53,7 @@ export const TrelloService = {
     checklistID: string,
     name: string,
     pos?: number,
-    due?: string
+    due?: string,
   ) => {
     return axios.post<ChecklistItem>(
       `${
@@ -62,26 +62,26 @@ export const TrelloService = {
         config.trello.key
       }&token=${config.trello.token}${pos ? `&pos=${pos}` : ""}${
         due ? `&due=${due}` : ""
-      }`
+      }`,
     );
   },
 
   createChecklistWithItems: async (
     cardId: string,
     name: string,
-    items: string[]
+    items: string[],
   ): Promise<void> => {
     const checklist = await TrelloService.getChecklistFromCardByName(
       cardId,
-      name
+      name,
     );
     if (!checklist) {
       const checklistID = await TrelloService.createChecklist(cardId, name);
 
       await Promise.all(
         items.map((item) =>
-          TrelloService.createChecklistItem(checklistID, item, 4102521960000)
-        )
+          TrelloService.createChecklistItem(checklistID, item, 4102521960000),
+        ),
       );
     }
   },
@@ -90,26 +90,26 @@ export const TrelloService = {
     cardID: string,
     checklistID: string,
     checklistItemID: string,
-    checklistItem: Partial<ChecklistItem>
+    checklistItem: Partial<ChecklistItem>,
   ) => {
     return axios.put<ChecklistItem>(
       `${config.trello.apiUrl}/cards/${cardID}/checklist/${checklistID}/checkItem/${checklistItemID}?&key=${config.trello.key}&token=${config.trello.token}`,
-      checklistItem
+      checklistItem,
     );
   },
 
   hasIncompleteItemsInChecklists: async (
     cardId: string,
-    checklistName: string
+    checklistName: string,
   ): Promise<boolean> => {
     const checklist = await TrelloService.getChecklistFromCardByName(
       cardId,
-      checklistName
+      checklistName,
     );
 
     return (
       checklist?.checkItems.some(
-        (item: ChecklistItem) => item.state === "incomplete"
+        (item: ChecklistItem) => item.state === "incomplete",
       ) || false
     );
   },
@@ -117,15 +117,15 @@ export const TrelloService = {
   createEmailsChecklist: async (
     cardId: string,
     emails: string[],
-    isLead = false
+    isLead = false,
   ): Promise<string> => {
     const id = await TrelloService.createChecklist(
       cardId,
-      isLead ? "Aprovação da liderança" : "Emails aguardando aprovação"
+      isLead ? "Aprovação da liderança" : "Emails aguardando aprovação",
     );
 
     await Promise.all(
-      emails.map((email) => TrelloService.createChecklistItem(id, email))
+      emails.map((email) => TrelloService.createChecklistItem(id, email)),
     );
 
     return id;
@@ -134,7 +134,7 @@ export const TrelloService = {
   getChecklistsByCardId: async (cardID: string) => {
     return (
       await axios.get<Checklist[]>(
-        `${config.trello.apiUrl}/cards/${cardID}/checklists?key=${config.trello.key}&token=${config.trello.token}`
+        `${config.trello.apiUrl}/cards/${cardID}/checklists?key=${config.trello.key}&token=${config.trello.token}`,
       )
     ).data;
   },
@@ -147,14 +147,14 @@ export const TrelloService = {
   getChecklistItems: async (checklistId: string) => {
     return (
       await axios.get<ChecklistItem[]>(
-        `${config.trello.apiUrl}/checklists/${checklistId}/checkItems?key=${config.trello.key}&token=${config.trello.token}`
+        `${config.trello.apiUrl}/checklists/${checklistId}/checkItems?key=${config.trello.key}&token=${config.trello.token}`,
       )
     ).data;
   },
 
   deleteChecklistItem: async (checklistId: string, checklistItemID: string) => {
     await axios.delete(
-      `${config.trello.apiUrl}/checklists/${checklistId}/checkItems/${checklistItemID}?key=${config.trello.key}&token=${config.trello.token}`
+      `${config.trello.apiUrl}/checklists/${checklistId}/checkItems/${checklistItemID}?key=${config.trello.key}&token=${config.trello.token}`,
     );
   },
 
@@ -162,7 +162,7 @@ export const TrelloService = {
     await Promise.all(
       cards.map(async (card) => {
         const { data } = await axios.get<Checklist[]>(
-          `${config.trello.apiUrl}/cards/${card.id}/checklists?name=${checklistName}&key=${config.trello.key}&token=${config.trello.token}`
+          `${config.trello.apiUrl}/cards/${card.id}/checklists?name=${checklistName}&key=${config.trello.key}&token=${config.trello.token}`,
         );
         const today = new Date();
         const tomorrow = new Date(today);
@@ -176,7 +176,7 @@ export const TrelloService = {
             (item) =>
               item.state === "incomplete" &&
               item.due &&
-              new Date(item.due) < today
+              new Date(item.due) < today,
           );
 
         const expireTomorrow = data
@@ -187,24 +187,24 @@ export const TrelloService = {
               item.state === "incomplete" &&
               item.due &&
               new Date(item.due) > today &&
-              new Date(item.due) < tomorrow
+              new Date(item.due) < tomorrow,
           );
 
         const fields = await TrelloService.getCustomFieldsByCardId(card.id);
         const contactField = BOARD_GOING_CUSTOM_FIELDS.find(
-          (item) => item.name === "Contato"
+          (item) => item.name === "Contato",
         );
 
         const teamOfSecretariatField = BOARD_GOING_CUSTOM_FIELDS.find(
-          (item) => item.name === "Equipe Secretaria"
+          (item) => item.name === "Equipe Secretaria",
         );
 
         const representativeOfSecretariatField = BOARD_GOING_CUSTOM_FIELDS.find(
-          (item) => item.name === "Representante da Secretaria"
+          (item) => item.name === "Representante da Secretaria",
         );
 
         const jataiTeamField = BOARD_GOING_CUSTOM_FIELDS.find(
-          (item) => item.name === "Equipe Jataí"
+          (item) => item.name === "Equipe Jataí",
         );
 
         const jataiTeam =
@@ -217,13 +217,13 @@ export const TrelloService = {
 
         const teamOfSecretariat =
           fields.find(
-            (item) => item.idCustomField === teamOfSecretariatField?.id
+            (item) => item.idCustomField === teamOfSecretariatField?.id,
           )?.value.text || "";
 
         const representativeOfSecretariat =
           fields.find(
             (item) =>
-              item.idCustomField === representativeOfSecretariatField?.id
+              item.idCustomField === representativeOfSecretariatField?.id,
           )?.value.text || "";
 
         if (expiredItem) {
@@ -240,7 +240,7 @@ export const TrelloService = {
               ...representativeOfSecretariat
                 .split(",")
                 .map((item) => item.trim()),
-            ]
+            ],
           );
 
           await EmailService.send(
@@ -251,7 +251,7 @@ export const TrelloService = {
               date: formatDate(expiredItem.due),
               daysOfDelay: getTotalDaysPastDue(expiredItem.due).toString(),
             }),
-            jataiTeam.split(",").map((item) => item.trim())
+            jataiTeam.split(",").map((item) => item.trim()),
           );
         }
         if (expireTomorrow) {
@@ -269,10 +269,10 @@ export const TrelloService = {
                 .split(",")
                 .map((item) => item.trim()),
               ...jataiTeam.split(",").map((item) => item.trim()),
-            ]
+            ],
           );
         }
-      })
+      }),
     );
   },
 
@@ -280,24 +280,24 @@ export const TrelloService = {
     await Promise.all(
       cards.map(async (card) => {
         const { data } = await axios.get<Checklist[]>(
-          `${config.trello.apiUrl}/cards/${card.id}/checklists?name=${checklistName}&key=${config.trello.key}&token=${config.trello.token}`
+          `${config.trello.apiUrl}/cards/${card.id}/checklists?name=${checklistName}&key=${config.trello.key}&token=${config.trello.token}`,
         );
 
         const fields = await TrelloService.getCustomFieldsByCardId(card.id);
         const contactField = BOARD_GOING_CUSTOM_FIELDS.find(
-          (item) => item.name === "Contato"
+          (item) => item.name === "Contato",
         );
 
         const teamOfSecretariatField = BOARD_GOING_CUSTOM_FIELDS.find(
-          (item) => item.name === "Equipe Secretaria"
+          (item) => item.name === "Equipe Secretaria",
         );
 
         const representativeOfSecretariatField = BOARD_GOING_CUSTOM_FIELDS.find(
-          (item) => item.name === "Representante da Secretaria"
+          (item) => item.name === "Representante da Secretaria",
         );
 
         const jataiTeamField = BOARD_GOING_CUSTOM_FIELDS.find(
-          (item) => item.name === "Equipe Jataí"
+          (item) => item.name === "Equipe Jataí",
         );
 
         const jataiTeam =
@@ -310,13 +310,13 @@ export const TrelloService = {
 
         const teamOfSecretariat =
           fields.find(
-            (item) => item.idCustomField === teamOfSecretariatField?.id
+            (item) => item.idCustomField === teamOfSecretariatField?.id,
           )?.value.text || "";
 
         const representativeOfSecretariat =
           fields.find(
             (item) =>
-              item.idCustomField === representativeOfSecretariatField?.id
+              item.idCustomField === representativeOfSecretariatField?.id,
           )?.value.text || "";
 
         const incompleteItems = data
@@ -335,7 +335,7 @@ export const TrelloService = {
                 contactLink,
               },
               incompleteItems.sort((a, b) => a.pos - b.pos),
-              completedItems
+              completedItems,
             ),
             [
               ...teamOfSecretariat.split(",").map((item) => item.trim()),
@@ -343,65 +343,65 @@ export const TrelloService = {
                 .split(",")
                 .map((item) => item.trim()),
               ...jataiTeam.split(",").map((item) => item.trim()),
-            ]
+            ],
           );
         }
-      })
+      }),
     );
   },
 
   notifyDueChecklistItems: async () => {
     const secondColumnItems = await axios.get<Card[]>(
-      `${config.trello.apiUrl}/lists/${BOARD_GOING_COLUMNS[1].id}/cards?key=${config.trello.key}&token=${config.trello.token}`
+      `${config.trello.apiUrl}/lists/${BOARD_GOING_COLUMNS[1].id}/cards?key=${config.trello.key}&token=${config.trello.token}`,
     );
     const thirdColumnItems = await axios.get(
-      `${config.trello.apiUrl}/lists/${BOARD_GOING_COLUMNS[2].id}/cards?key=${config.trello.key}&token=${config.trello.token}`
+      `${config.trello.apiUrl}/lists/${BOARD_GOING_COLUMNS[2].id}/cards?key=${config.trello.key}&token=${config.trello.token}`,
     );
     const fourthColumnItems = await axios.get(
-      `${config.trello.apiUrl}/lists/${BOARD_GOING_COLUMNS[3].id}/cards?key=${config.trello.key}&token=${config.trello.token}`
+      `${config.trello.apiUrl}/lists/${BOARD_GOING_COLUMNS[3].id}/cards?key=${config.trello.key}&token=${config.trello.token}`,
     );
 
     await TrelloService.sendEmailToDueItems(
       secondColumnItems.data,
-      GOING_CHECKLISTS.secondColumn.name
+      GOING_CHECKLISTS.secondColumn.name,
     );
     await TrelloService.sendEmailToDueItems(
       thirdColumnItems.data,
-      GOING_CHECKLISTS.thirdColumn.name
+      GOING_CHECKLISTS.thirdColumn.name,
     );
     await TrelloService.sendEmailToDueItems(
       fourthColumnItems.data,
-      GOING_CHECKLISTS.fourthColumn.name
+      GOING_CHECKLISTS.fourthColumn.name,
     );
   },
 
   sendWeekResume: async () => {
     const secondColumnItems = await axios.get<Card[]>(
-      `${config.trello.apiUrl}/lists/${BOARD_GOING_COLUMNS[1].id}/cards?key=${config.trello.key}&token=${config.trello.token}`
+      `${config.trello.apiUrl}/lists/${BOARD_GOING_COLUMNS[1].id}/cards?key=${config.trello.key}&token=${config.trello.token}`,
     );
     const thirdColumnItems = await axios.get<Card[]>(
-      `${config.trello.apiUrl}/lists/${BOARD_GOING_COLUMNS[2].id}/cards?key=${config.trello.key}&token=${config.trello.token}`
+      `${config.trello.apiUrl}/lists/${BOARD_GOING_COLUMNS[2].id}/cards?key=${config.trello.key}&token=${config.trello.token}`,
     );
     const fourthColumnItems = await axios.get<Card[]>(
-      `${config.trello.apiUrl}/lists/${BOARD_GOING_COLUMNS[3].id}/cards?key=${config.trello.key}&token=${config.trello.token}`
+      `${config.trello.apiUrl}/lists/${BOARD_GOING_COLUMNS[3].id}/cards?key=${config.trello.key}&token=${config.trello.token}`,
     );
 
     if (secondColumnItems.data.length > 0) {
       await TrelloService.sendEmailWithWeekResume(
         secondColumnItems.data,
-        GOING_CHECKLISTS.secondColumn.name
+        GOING_CHECKLISTS.secondColumn.name,
       );
     }
     if (thirdColumnItems.data.length > 0) {
       await TrelloService.sendEmailWithWeekResume(
         thirdColumnItems.data,
-        GOING_CHECKLISTS.thirdColumn.name
+        GOING_CHECKLISTS.thirdColumn.name,
       );
     }
     if (fourthColumnItems.data.length > 0) {
       await TrelloService.sendEmailWithWeekResume(
         fourthColumnItems.data,
-        GOING_CHECKLISTS.fourthColumn.name
+        GOING_CHECKLISTS.fourthColumn.name,
       );
     }
   },

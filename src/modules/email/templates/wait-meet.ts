@@ -147,5 +147,5 @@ export const WAIT_MEET_TEMPLATE = (keys: {
   </body>
 </html>  
     `,
-    keys
+    keys,
   );
