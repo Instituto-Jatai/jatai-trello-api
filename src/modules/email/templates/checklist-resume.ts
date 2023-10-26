@@ -64,49 +64,55 @@ export const CHECKLIST_RESUME_TEMPLATE = (
         >
           <p style="font-weight: 600; font-size: 20px">Itens</p>
           <p style="font-weight: 600">Pendentes:</p>
-          ${pendingItems?.map(
-            (item) => `
-        <table border="0">
-        <tr>
-          <td rowspan="2">
-            <input type="radio" />
-          </td>
+          ${pendingItems
+            ?.map(
+              (item) => `
+          <table border="0" style="margin: 20px 0px;">
+            <tr>
+              <td rowspan="2" style="width: 24px;">
+                <input type="radio"/>
+              </td>
 
-          <td>
-            <p style="margin: 0; font-weight: 500; color: #666666">
-            ${item.name}
-            </p>
-          </td>
-        </tr>
+              <td>
+                <p style="margin: 0; font-weight: 500; color: #666666">
+                  ${item.name}
+                </p>
+              </td>
+            </tr>
 
-        <tr>
-          <td>
-            <p style="margin: 0; font-weight: 600">${formatDate(item.due)}</p>
-          </td>
-        </tr>
-      </table>
-      `
-          )}
+            <tr>
+              <td>
+                <p style="margin: 0; font-weight: 600">Prazo: ${
+                  item.due ? formatDate(item.due) : "Não definido"
+                }</p>
+              </td>
+            </tr>
+          </table>
+          `
+            )
+            .join("")}
   
           <p style="font-weight: 600">Concluídos:</p>
 
-          ${completedItems?.map(
-            (item) => `
-            <table border="0">
-        <tr>
-          <td rowspan="2">
-            <input type="radio" checked />
-          </td>
+          ${completedItems
+            ?.map(
+              (item) => `
+            <table border="0" style="margin: 20px 0px;">
+              <tr>
+                <td rowspan="2" style="width: 24px;">
+                  <input type="radio" checked />
+                </td>
 
-          <td>
-            <p style="margin: 0; font-weight: 500; color: #666666">
-            ${item.name}
-            </p>
-          </td>
-        </tr></table>
-          
+                <td>
+                  <p style="margin: 0; font-weight: 500; color: #666666">
+                    ${item.name}
+                  </p>
+                </td>
+              </tr>
+            </table>
           `
-          )}
+            )
+            .join("")}
           
         </div>
   
